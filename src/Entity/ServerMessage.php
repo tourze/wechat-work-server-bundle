@@ -339,7 +339,7 @@ class ServerMessage
 
     public static function createFromArray(array $arr): static
     {
-        $message = new static();
+        $message = new self();
         $message->setRawData($arr);
         if (isset($arr['CreateTime'])) {
             $message->setCreateTime($arr['CreateTime']);
