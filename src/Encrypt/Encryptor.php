@@ -11,18 +11,14 @@
 
 namespace WechatWorkServerBundle\Encrypt;
 
-use EasyWeChat\Kernel\Exceptions\RuntimeException;
-use EasyWeChat\Kernel\Support\AES;
-use EasyWeChat\Kernel\Support\XML;
-use Symfony\Component\DependencyInjection\Attribute\Exclude;
-use function EasyWeChat\Kernel\Support\str_random;
+use Tourze\XML\XML;
+use WechatWorkServerBundle\Exception\RuntimeException;
 
 /**
  * Class Encryptor.
  *
  * @author overtrue <i@overtrue.me>
  */
-#[Exclude]
 class Encryptor
 {
     public const ERROR_INVALID_SIGNATURE = -40001; // Signature verification failed
@@ -105,7 +101,7 @@ class Encryptor
     public function encrypt($xml, $nonce = null, $timestamp = null): string
     {
         try {
-            $xml = $this->pkcs7Pad(str_random(16) . pack('N', strlen($xml)) . $xml . $this->appId, $this->blockSize);
+            $xml = $this->pkcs7Pad(random_bytes(16) . pack('N', strlen($xml)) . $xml . $this->appId, $this->blockSize);
 
             $encrypted = base64_encode(AES::encrypt(
                 $xml,
