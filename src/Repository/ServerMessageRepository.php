@@ -4,7 +4,6 @@ namespace WechatWorkServerBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineEnhanceBundle\Repository\CommonRepositoryAware;
 use Tourze\XML\XML;
 use WechatWorkServerBundle\Entity\ServerMessage;
 
@@ -16,8 +15,6 @@ use WechatWorkServerBundle\Entity\ServerMessage;
  */
 class ServerMessageRepository extends ServiceEntityRepository
 {
-    use CommonRepositoryAware;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ServerMessage::class);

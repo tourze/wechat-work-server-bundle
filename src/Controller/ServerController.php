@@ -171,7 +171,7 @@ class ServerController extends AbstractController
     private function parseMessage($content)
     {
         try {
-            if (0 === mb_stripos($content, '<')) {
+            if (0 === stripos($content, '<')) {
                 $content = XML::parse($content);
             } else {
                 // Handle JSON format.
