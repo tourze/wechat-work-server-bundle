@@ -2,6 +2,7 @@
 
 namespace WechatWorkServerBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -23,6 +24,12 @@ use WechatWorkServerBundle\Repository\ServerMessageRepository;
 #[Route(path: '/wechat/work')]
 class ServerController extends AbstractController
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+    )
+    {
+    }
+
     /**
      * @see https://developer.work.weixin.qq.com/document/path/90240
      * @see https://developer.work.weixin.qq.com/document/path/90239
@@ -38,7 +45,6 @@ class ServerController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         LockFactory $lockFactory,
         LoggerInterface $logger,
-        ServerMessageRepository $messageRepository,
     ): Response {
         $corp = $corpRepository->findOneBy(['corpId' => $corpId]);
         if (!$corp) {
@@ -117,7 +123,8 @@ class ServerController extends AbstractController
         $serverMessage = ServerMessage::createFromArray($message);
         $serverMessage->setCorp($corp);
         $serverMessage->setAgent($agent);
-        $messageRepository->save($serverMessage);
+        $this->entityManager->persist($serverMessage);
+        $this->entityManager->flush();
 
         $event = new WechatWorkServerMessageRequestEvent();
         $event->setMessage($serverMessage);
