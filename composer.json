@@ -21,6 +21,7 @@
     "symfony/http-foundation": "^6.4",
     "symfony/http-kernel": "^6.4",
     "symfony/lock": "^6.4",
+    "symfony/routing": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
     "tourze/doctrine-snowflake-bundle": "0.1.*",
     "tourze/easy-admin-attribute": "0.1.*",
