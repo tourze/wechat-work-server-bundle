@@ -9,8 +9,8 @@ use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Filter\Keyword;
 use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
-use WechatWorkBundle\Entity\Agent;
-use WechatWorkBundle\Entity\Corp;
+use Tourze\WechatWorkContracts\AgentInterface;
+use Tourze\WechatWorkContracts\CorpInterface;
 use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
 #[AsPermission(title: '服务端消息')]
@@ -82,10 +82,10 @@ class ServerMessage
     private ?string $welcomeCode = null;
 
     #[ORM\ManyToOne]
-    private ?Corp $corp = null;
+    private ?CorpInterface $corp = null;
 
     #[ORM\ManyToOne]
-    private ?Agent $agent = null;
+    private ?AgentInterface $agent = null;
 
     #[ORM\Column(nullable: true)]
     private ?array $response = null;
@@ -299,24 +299,24 @@ class ServerMessage
         return $this;
     }
 
-    public function getCorp(): ?Corp
+    public function getCorp(): ?CorpInterface
     {
         return $this->corp;
     }
 
-    public function setCorp(?Corp $corp): static
+    public function setCorp(?CorpInterface $corp): static
     {
         $this->corp = $corp;
 
         return $this;
     }
 
-    public function getAgent(): ?Agent
+    public function getAgent(): ?AgentInterface
     {
         return $this->agent;
     }
 
-    public function setAgent(?Agent $agent): static
+    public function setAgent(?AgentInterface $agent): static
     {
         $this->agent = $agent;
 

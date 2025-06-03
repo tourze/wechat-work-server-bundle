@@ -10,48 +10,119 @@ use WechatWorkServerBundle\Command\ImportServerMessageCommand;
 
 class ImportServerMessageCommandTest extends TestCase
 {
+    private ImportServerMessageCommand $command;
     private CommandTester $commandTester;
-    
+
     protected function setUp(): void
     {
-        $command = new ImportServerMessageCommand();
+        $this->command = new ImportServerMessageCommand();
         
         $application = new Application();
-        $application->add($command);
+        $application->add($this->command);
         
-        $this->commandTester = new CommandTester($command);
+        $this->commandTester = new CommandTester($this->command);
     }
-    
-    public function testCommandDefinition(): void
+
+    public function test_command_creation_success(): void
     {
-        $application = new Application();
-        $command = new ImportServerMessageCommand();
-        $application->add($command);
+        $this->assertInstanceOf(Command::class, $this->command);
+        $this->assertInstanceOf(ImportServerMessageCommand::class, $this->command);
+    }
+
+    public function test_command_extends_symfony_command(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
         
-        $command = $application->find('wechat-work:import-server-message');
+        $this->assertTrue($reflection->isSubclassOf(Command::class));
+    }
+
+    public function test_command_name(): void
+    {
+        $this->assertEquals('wechat-work:import-server-message', $this->command->getName());
+    }
+
+    public function test_command_description(): void
+    {
+        $this->assertEquals('导入本地文件', $this->command->getDescription());
+    }
+
+    public function test_command_has_file_argument(): void
+    {
+        $definition = $this->command->getDefinition();
         
-        $this->assertInstanceOf(ImportServerMessageCommand::class, $command);
-        $this->assertEquals('wechat-work:import-server-message', $command->getName());
-        $this->assertEquals('导入本地文件', $command->getDescription());
-        
-        $definition = $command->getDefinition();
         $this->assertTrue($definition->hasArgument('file'));
-        $this->assertFalse($definition->getArgument('file')->isRequired());
-    }
-    
-    public function testCommandExecution(): void
-    {
-        $this->commandTester->execute([]);
         
-        $this->assertEquals(Command::SUCCESS, $this->commandTester->getStatusCode());
+        $argument = $definition->getArgument('file');
+        $this->assertEquals('LOG文件', $argument->getDescription());
+        $this->assertFalse($argument->isRequired());
     }
-    
-    public function testCommandExecutionWithFile(): void
+
+    public function test_execute_without_arguments(): void
     {
-        $this->commandTester->execute([
-            'file' => 'non_existent_file.txt'
+        $exitCode = $this->commandTester->execute([]);
+        
+        $this->assertEquals(Command::SUCCESS, $exitCode);
+    }
+
+    public function test_execute_with_file_argument(): void
+    {
+        $exitCode = $this->commandTester->execute([
+            'file' => 'test.log'
         ]);
         
-        $this->assertEquals(Command::SUCCESS, $this->commandTester->getStatusCode());
+        $this->assertEquals(Command::SUCCESS, $exitCode);
+    }
+
+    public function test_execute_returns_success(): void
+    {
+        $exitCode = $this->commandTester->execute([
+            'file' => 'nonexistent.log'
+        ]);
+        
+        $this->assertEquals(Command::SUCCESS, $exitCode);
+    }
+
+    public function test_command_namespace(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        
+        $this->assertEquals('WechatWorkServerBundle\Command', $reflection->getNamespaceName());
+        $this->assertEquals('ImportServerMessageCommand', $reflection->getShortName());
+    }
+
+    public function test_command_configure_method_exists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        
+        $this->assertTrue($reflection->hasMethod('configure'));
+        
+        $method = $reflection->getMethod('configure');
+        $this->assertTrue($method->isProtected());
+    }
+
+    public function test_command_execute_method_exists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        
+        $this->assertTrue($reflection->hasMethod('execute'));
+        
+        $method = $reflection->getMethod('execute');
+        $this->assertTrue($method->isProtected());
+    }
+
+    public function test_execute_with_empty_string_file(): void
+    {
+        $exitCode = $this->commandTester->execute([
+            'file' => ''
+        ]);
+        
+        $this->assertEquals(Command::SUCCESS, $exitCode);
+    }
+
+    public function test_execute_with_null_file(): void
+    {
+        $exitCode = $this->commandTester->execute([]);
+        
+        $this->assertEquals(Command::SUCCESS, $exitCode);
     }
 } 
