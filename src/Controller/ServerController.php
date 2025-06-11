@@ -189,7 +189,7 @@ class ServerController extends AbstractController
             }
 
             return (array) $content;
-        } catch  (\Throwable $e) {
+        } catch (\Throwable $e) {
             throw new BadRequestException(sprintf('Invalid message content:(%s) %s', $e->getCode(), $e->getMessage()), $e->getCode());
         }
     }
