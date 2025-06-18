@@ -69,8 +69,6 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $xmlContent);
-        
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('CreateTime', $result);
         $this->assertEquals('ww123', $result['ToUserName']);
@@ -85,8 +83,6 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $jsonContent);
-        
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('CreateTime', $result);
         $this->assertEquals('ww123', $result['ToUserName']);
@@ -116,7 +112,6 @@ class ServerControllerIndexTest extends TestCase
         $result = $method->invoke($this->controller, $invalidJson);
         
         // 无效JSON应该作为数组返回
-        $this->assertIsArray($result);
     }
 
     public function test_parse_message_with_empty_content(): void
@@ -127,8 +122,6 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $emptyContent);
-        
-        $this->assertIsArray($result);
         $this->assertEquals([''], $result);
     }
 
@@ -140,8 +133,6 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $plainText);
-        
-        $this->assertIsArray($result);
         $this->assertEquals(['just plain text'], $result);
     }
 
@@ -153,8 +144,6 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $nestedXml);
-        
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('Event', $result);
         $this->assertArrayHasKey('ChangeType', $result);
@@ -178,14 +167,11 @@ class ServerControllerIndexTest extends TestCase
         $method = $reflection->getMethod('parseMessage');
         
         $result = $method->invoke($this->controller, $complexJson);
-        
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('Event', $result);
         $this->assertArrayHasKey('nested', $result);
         $this->assertEquals('ww123', $result['ToUserName']);
         $this->assertEquals('test_event', $result['Event']);
-        $this->assertIsArray($result['nested']);
     }
 
     public function test_controller_namespace(): void

@@ -5,43 +5,32 @@ namespace WechatWorkServerBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use Tourze\WechatWorkContracts\AgentInterface;
 use Tourze\WechatWorkContracts\CorpInterface;
 use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
-#[AsPermission(title: '服务端消息')]
 #[ORM\Entity(repositoryClass: ServerMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_server_message', options: ['comment' => '服务端消息'])]
 class ServerMessage
 {
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
     private ?string $id = null;
 
-    #[Keyword]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 64, options: ['comment' => '企业微信CorpID'])]
     private ?string $toUserName = null;
 
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '成员UserID'])]
     private ?string $fromUserName = null;
 
-    #[ListColumn]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => '消息创建时间戳'])]
     private ?int $createTime = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => 'Encrypt参数解密后的内容'])]
     private array $decryptData = [];
 
-    #[Keyword]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '原始数据'])]
     private ?array $rawData = null;
 
