@@ -11,7 +11,7 @@ use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
 #[ORM\Entity(repositoryClass: ServerMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_server_message', options: ['comment' => '服务端消息'])]
-class ServerMessage
+class ServerMessage implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -375,5 +375,10 @@ class ServerMessage
         }
 
         return $message;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

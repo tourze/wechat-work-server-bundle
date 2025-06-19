@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'wechat-work:import-server-message', description: '导入本地文件')]
 class ImportServerMessageCommand extends Command
 {
+    private const NAME = 'wechat-work:import-server-message';
     //    public function __construct(private readonly ServerMessageRepository $messageRepository)
     //    {
     //        parent::__construct();
