@@ -29,10 +29,10 @@ class ServerMessageRepository extends ServiceEntityRepository
 
         $message = ServerMessage::createFromArray($arr);
 
-        if (!$message->getCreateTime()) {
+        if ($message->getCreateTime() === null) {
             return null;
         }
-        if (!$message->getToUserName()) {
+        if ($message->getToUserName() === null) {
             return null;
         }
 

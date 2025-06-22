@@ -34,18 +34,18 @@ class ServerMessageRepositoryTest extends TestCase
             'QuitScene' => 2,
             'State' => 'test_state',
         ];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         // 创建mock repository
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertEquals(1654355183, $message->getCreateTime());
         $this->assertEquals('ww72805907153f7fa3', $message->getToUserName());
         $this->assertEquals('test_user', $message->getFromUserName());
@@ -71,17 +71,17 @@ class ServerMessageRepositoryTest extends TestCase
             'ToUserName' => 'ww72805907153f7fa3',
             'MsgType' => 'event',
         ];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertEquals(1654355183, $message->getCreateTime());
         $this->assertEquals('ww72805907153f7fa3', $message->getToUserName());
         $this->assertEquals('event', $message->getMsgType());
@@ -93,17 +93,17 @@ class ServerMessageRepositoryTest extends TestCase
     {
         $message = new ServerMessage();
         $data = [];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertNull($message->getCreateTime());
         $this->assertNull($message->getToUserName());
         $this->assertNull($message->getFromUserName());
@@ -117,17 +117,17 @@ class ServerMessageRepositoryTest extends TestCase
             'MemChangeCnt' => 10,
             'QuitScene' => 3,
         ];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertEquals(0, $message->getJoinScene());
         $this->assertEquals(10, $message->getMemChangeCnt());
         $this->assertEquals(3, $message->getQuitScene());
@@ -141,17 +141,17 @@ class ServerMessageRepositoryTest extends TestCase
             'State' => 'empty_state',
             'UpdateDetail' => 'test_detail',
         ];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertEquals('', $message->getUserId());
         $this->assertEquals('empty_state', $message->getState());
         $this->assertEquals('test_detail', $message->getUpdateDetail());
@@ -161,39 +161,41 @@ class ServerMessageRepositoryTest extends TestCase
     {
         $message = new ServerMessage();
         $message->setToUserName('original_value');
-        
+
         $data = [
             'CreateTime' => 1654355183,
             // ToUserName 没有在data中，应该保持原值
         ];
-        
+
         // 使用反射来测试assignMessage方法
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
         $method = $reflection->getMethod('assignMessage');
-        
+
         $repository = $this->getMockBuilder(ServerMessageRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $method->invoke($repository, $message, $data);
-        
+
         $this->assertEquals(1654355183, $message->getCreateTime());
         $this->assertEquals('original_value', $message->getToUserName());
     }
 
     public function test_repository_inheritance(): void
     {
+        $reflection = new \ReflectionClass(ServerMessageRepository::class);
+
         $this->assertTrue(
-            is_subclass_of(ServerMessageRepository::class, 'Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository')
+            $reflection->isSubclassOf('Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository')
         );
     }
 
     public function test_repository_has_assign_message_method(): void
     {
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
-        
+
         $this->assertTrue($reflection->hasMethod('assignMessage'));
-        
+
         $method = $reflection->getMethod('assignMessage');
         $this->assertTrue($method->isPublic());
     }
@@ -201,10 +203,10 @@ class ServerMessageRepositoryTest extends TestCase
     public function test_repository_has_save_xml_method(): void
     {
         $reflection = new \ReflectionClass(ServerMessageRepository::class);
-        
+
         $this->assertTrue($reflection->hasMethod('saveXML'));
-        
+
         $method = $reflection->getMethod('saveXML');
         $this->assertTrue($method->isPublic());
     }
-} 
+}

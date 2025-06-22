@@ -24,7 +24,7 @@ class ServerControllerIndexTest extends TestCase
     public function test_controller_extends_abstract_controller(): void
     {
         $reflection = new \ReflectionClass($this->controller);
-        
+
         $this->assertTrue(
             $reflection->isSubclassOf('Symfony\Bundle\FrameworkBundle\Controller\AbstractController')
         );
@@ -33,9 +33,9 @@ class ServerControllerIndexTest extends TestCase
     public function test_controller_has_index_method(): void
     {
         $reflection = new \ReflectionClass($this->controller);
-        
+
         $this->assertTrue($reflection->hasMethod('index'));
-        
+
         $method = $reflection->getMethod('index');
         $this->assertTrue($method->isPublic());
     }
@@ -43,9 +43,9 @@ class ServerControllerIndexTest extends TestCase
     public function test_controller_has_direct_callback_method(): void
     {
         $reflection = new \ReflectionClass($this->controller);
-        
+
         $this->assertTrue($reflection->hasMethod('directCallback'));
-        
+
         $method = $reflection->getMethod('directCallback');
         $this->assertTrue($method->isPublic());
     }
@@ -53,9 +53,9 @@ class ServerControllerIndexTest extends TestCase
     public function test_controller_has_parse_message_method(): void
     {
         $reflection = new \ReflectionClass($this->controller);
-        
+
         $this->assertTrue($reflection->hasMethod('parseMessage'));
-        
+
         $method = $reflection->getMethod('parseMessage');
         $this->assertTrue($method->isPrivate());
     }
@@ -63,11 +63,11 @@ class ServerControllerIndexTest extends TestCase
     public function test_parse_message_with_xml_content(): void
     {
         $xmlContent = '<xml><ToUserName>ww123</ToUserName><CreateTime>123456</CreateTime></xml>';
-        
+
         // 使用反射测试私有方法
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $xmlContent);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('CreateTime', $result);
@@ -78,10 +78,10 @@ class ServerControllerIndexTest extends TestCase
     public function test_parse_message_with_json_content(): void
     {
         $jsonContent = json_encode(['ToUserName' => 'ww123', 'CreateTime' => 123456]);
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $jsonContent);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('CreateTime', $result);
@@ -92,35 +92,36 @@ class ServerControllerIndexTest extends TestCase
     public function test_parse_message_with_invalid_xml(): void
     {
         $invalidXml = '<xml><ToUserName>ww123</ToUserName>';
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         // 由于底层XML解析库的行为，这里只测试是否抛出异常
         $this->expectException(\Throwable::class);
-        
+
         $method->invoke($this->controller, $invalidXml);
     }
 
     public function test_parse_message_with_invalid_json(): void
     {
         $invalidJson = '{"ToUserName": "ww123", "CreateTime":';
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $invalidJson);
-        
-        // 无效JSON应该作为数组返回
+
+        // 无效JSON应该作为数组返回原始字符串
+        $this->assertEquals([$invalidJson], $result);
     }
 
     public function test_parse_message_with_empty_content(): void
     {
         $emptyContent = '';
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $emptyContent);
         $this->assertEquals([''], $result);
     }
@@ -128,10 +129,10 @@ class ServerControllerIndexTest extends TestCase
     public function test_parse_message_with_plain_text(): void
     {
         $plainText = 'just plain text';
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $plainText);
         $this->assertEquals(['just plain text'], $result);
     }
@@ -139,10 +140,10 @@ class ServerControllerIndexTest extends TestCase
     public function test_parse_message_with_nested_xml(): void
     {
         $nestedXml = '<xml><ToUserName>ww123</ToUserName><Event>test</Event><ChangeType>add</ChangeType></xml>';
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $nestedXml);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('Event', $result);
@@ -162,10 +163,10 @@ class ServerControllerIndexTest extends TestCase
                 'key2' => 'value2'
             ]
         ]);
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('parseMessage');
-        
+
         $result = $method->invoke($this->controller, $complexJson);
         $this->assertArrayHasKey('ToUserName', $result);
         $this->assertArrayHasKey('Event', $result);
@@ -177,8 +178,8 @@ class ServerControllerIndexTest extends TestCase
     public function test_controller_namespace(): void
     {
         $reflection = new \ReflectionClass($this->controller);
-        
+
         $this->assertEquals('WechatWorkServerBundle\Controller', $reflection->getNamespaceName());
         $this->assertEquals('ServerController', $reflection->getShortName());
     }
-} 
+}

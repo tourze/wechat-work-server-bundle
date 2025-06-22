@@ -8,10 +8,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'wechat-work:import-server-message', description: '导入本地文件')]
+#[AsCommand(name: self::NAME, description: '导入本地文件')]
 class ImportServerMessageCommand extends Command
 {
-    private const NAME = 'wechat-work:import-server-message';
+    public const NAME = 'wechat-work:import-server-message';
     //    public function __construct(private readonly ServerMessageRepository $messageRepository)
     //    {
     //        parent::__construct();

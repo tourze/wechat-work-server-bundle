@@ -21,21 +21,18 @@ use WechatWorkServerBundle\Entity\ServerMessage;
 use WechatWorkServerBundle\Event\WechatWorkServerMessageRequestEvent;
 use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
-#[Route(path: '/wechat/work')]
 class ServerController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-    )
-    {
-    }
+    ) {}
 
     /**
      * @see https://developer.work.weixin.qq.com/document/path/90240
      * @see https://developer.work.weixin.qq.com/document/path/90239
      * @see https://developer.work.weixin.qq.com/document/path/96238
      */
-    #[Route(path: '/server/{corpId}/{agentId}', name: 'wechat_work_server', methods: ['GET', 'POST'])]
+    #[Route(path: '/wechat/work/server/{corpId}/{agentId}', name: 'wechat_work_server', methods: ['GET', 'POST'])]
     public function index(
         string $corpId,
         string $agentId,
@@ -47,7 +44,7 @@ class ServerController extends AbstractController
         LoggerInterface $logger,
     ): Response {
         $corp = $corpRepository->findOneBy(['corpId' => $corpId]);
-        if (!$corp) {
+        if ($corp === null) {
             throw new NotFoundHttpException('找不到企业');
         }
 
@@ -55,18 +52,18 @@ class ServerController extends AbstractController
             'corp' => $corp,
             'agentId' => $agentId,
         ]);
-        if (!$agent) {
+        if ($agent === null) {
             // 在一些场景中，我们放出去的地址，可能是带名称的
             $agent = $agentRepository->findOneBy([
                 'corp' => $corp,
                 'name' => $agentId,
             ]);
         }
-        if (!$agent) {
+        if ($agent === null) {
             throw new NotFoundHttpException('找不到应用信息');
         }
 
-        $encryptor = new Encryptor($corp->getCorpId(), $agent->getToken(), $agent->getEncodingAesKey());
+        $encryptor = new Encryptor($corp->getCorpId(), $agent->getToken(), $agent->getEncodingAESKey());
         if ($request->query->has('echostr')) {
             $echostr = $request->query->get('echostr');
             $message = $encryptor->decrypt(
@@ -138,14 +135,14 @@ class ServerController extends AbstractController
             ]);
         }
 
-        if ($lockKey && $lock) {
+        if ($lockKey && $lock !== null) {
             $lock->release();
         }
 
-        return new Response($serverMessage->getResponse() ? XML::build($serverMessage->getResponse()) : 'success');
+        return new Response($serverMessage->getResponse() !== null ? XML::build($serverMessage->getResponse()) : 'success');
     }
 
-    #[Route(path: '/direct-server/{corpId}', name: 'wechat_work_server_direct_callback', methods: ['GET', 'POST'])]
+    #[Route(path: '/wechat/work/direct-server/{corpId}', name: 'wechat_work_server_direct_callback', methods: ['GET', 'POST'])]
     public function directCallback(
         string $corpId,
         Request $request,
@@ -183,7 +180,7 @@ class ServerController extends AbstractController
             } else {
                 // Handle JSON format.
                 $dataSet = json_decode($content, true);
-                if ($dataSet && (JSON_ERROR_NONE === json_last_error())) {
+                if ($dataSet !== null && (JSON_ERROR_NONE === json_last_error())) {
                     $content = $dataSet;
                 }
             }

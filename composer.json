@@ -25,6 +25,7 @@
     "symfony/routing": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
     "tourze/doctrine-snowflake-bundle": "0.1.*",
+    "tourze/symfony-routing-auto-loader-bundle": "0.0.*",
     "tourze/wechat-helper": "0.0.*",
     "tourze/wechat-work-bundle": "0.1.*",
     "tourze/wechat-work-contracts": "0.0.*",
