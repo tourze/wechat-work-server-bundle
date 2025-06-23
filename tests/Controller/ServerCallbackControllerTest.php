@@ -3,22 +3,22 @@
 namespace WechatWorkServerBundle\Tests\Controller;
 
 use PHPUnit\Framework\TestCase;
-use WechatWorkServerBundle\Controller\ServerController;
+use WechatWorkServerBundle\Controller\ServerCallbackController;
 
-class ServerControllerIndexTest extends TestCase
+class ServerCallbackControllerTest extends TestCase
 {
-    private ServerController $controller;
+    private ServerCallbackController $controller;
 
     protected function setUp(): void
     {
         // 由于Controller需要复杂的依赖注入，使用mock
         $entityManager = $this->createMock('Doctrine\ORM\EntityManagerInterface');
-        $this->controller = new ServerController($entityManager);
+        $this->controller = new ServerCallbackController($entityManager);
     }
 
     public function test_controller_creation_success(): void
     {
-        $this->assertInstanceOf(ServerController::class, $this->controller);
+        $this->assertInstanceOf(ServerCallbackController::class, $this->controller);
     }
 
     public function test_controller_extends_abstract_controller(): void
@@ -30,23 +30,13 @@ class ServerControllerIndexTest extends TestCase
         );
     }
 
-    public function test_controller_has_index_method(): void
+    public function test_controller_has_invoke_method(): void
     {
         $reflection = new \ReflectionClass($this->controller);
 
-        $this->assertTrue($reflection->hasMethod('index'));
+        $this->assertTrue($reflection->hasMethod('__invoke'));
 
-        $method = $reflection->getMethod('index');
-        $this->assertTrue($method->isPublic());
-    }
-
-    public function test_controller_has_direct_callback_method(): void
-    {
-        $reflection = new \ReflectionClass($this->controller);
-
-        $this->assertTrue($reflection->hasMethod('directCallback'));
-
-        $method = $reflection->getMethod('directCallback');
+        $method = $reflection->getMethod('__invoke');
         $this->assertTrue($method->isPublic());
     }
 
@@ -180,6 +170,6 @@ class ServerControllerIndexTest extends TestCase
         $reflection = new \ReflectionClass($this->controller);
 
         $this->assertEquals('WechatWorkServerBundle\Controller', $reflection->getNamespaceName());
-        $this->assertEquals('ServerController', $reflection->getShortName());
+        $this->assertEquals('ServerCallbackController', $reflection->getShortName());
     }
 }

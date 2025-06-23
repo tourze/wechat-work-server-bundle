@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Tourze\WechatHelper\Encryptor;
@@ -19,9 +18,8 @@ use WechatWorkBundle\Repository\AgentRepository;
 use WechatWorkBundle\Repository\CorpRepository;
 use WechatWorkServerBundle\Entity\ServerMessage;
 use WechatWorkServerBundle\Event\WechatWorkServerMessageRequestEvent;
-use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
-class ServerController extends AbstractController
+class ServerCallbackController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -33,7 +31,7 @@ class ServerController extends AbstractController
      * @see https://developer.work.weixin.qq.com/document/path/96238
      */
     #[Route(path: '/wechat/work/server/{corpId}/{agentId}', name: 'wechat_work_server', methods: ['GET', 'POST'])]
-    public function index(
+    public function __invoke(
         string $corpId,
         string $agentId,
         Request $request,
@@ -140,29 +138,6 @@ class ServerController extends AbstractController
         }
 
         return new Response($serverMessage->getResponse() !== null ? XML::build($serverMessage->getResponse()) : 'success');
-    }
-
-    #[Route(path: '/wechat/work/direct-server/{corpId}', name: 'wechat_work_server_direct_callback', methods: ['GET', 'POST'])]
-    public function directCallback(
-        string $corpId,
-        Request $request,
-        KernelInterface $kernel,
-        ServerMessageRepository $messageRepository,
-        LoggerInterface $logger,
-    ): Response {
-        $corpId = str_replace('..', '', $corpId);
-        $logFile = $kernel->getProjectDir() . "/wechat-work-{$corpId}.log";
-        file_put_contents($logFile, $request->getContent() . "\n", FILE_APPEND);
-
-        try {
-            $messageRepository->saveXML($request->getContent());
-        } catch (\Throwable $exception) {
-            $logger->error('保存到数据库时发生错误', [
-                'exception' => $exception,
-            ]);
-        }
-
-        return new Response('success');
     }
 
     /**

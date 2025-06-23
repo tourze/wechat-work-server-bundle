@@ -7,7 +7,8 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Routing\RouteCollection;
 use Tourze\RoutingAutoLoaderBundle\Service\RoutingAutoLoaderInterface;
-use WechatWorkServerBundle\Controller\ServerController;
+use WechatWorkServerBundle\Controller\DirectCallbackController;
+use WechatWorkServerBundle\Controller\ServerCallbackController;
 
 #[AutoconfigureTag('routing.loader')]
 class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInterface
@@ -28,7 +29,8 @@ class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInter
     public function autoload(): RouteCollection
     {
         $collection = new RouteCollection();
-        $collection->addCollection($this->controllerLoader->load(ServerController::class));
+        $collection->addCollection($this->controllerLoader->load(ServerCallbackController::class));
+        $collection->addCollection($this->controllerLoader->load(DirectCallbackController::class));
         return $collection;
     }
 
