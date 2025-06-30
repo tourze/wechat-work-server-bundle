@@ -10,7 +10,7 @@ use Tourze\RoutingAutoLoaderBundle\Service\RoutingAutoLoaderInterface;
 use WechatWorkServerBundle\Controller\DirectCallbackController;
 use WechatWorkServerBundle\Controller\ServerCallbackController;
 
-#[AutoconfigureTag('routing.loader')]
+#[AutoconfigureTag(name: 'routing.loader')]
 class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInterface
 {
     private AttributeRouteControllerLoader $controllerLoader;

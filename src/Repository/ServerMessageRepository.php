@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Tourze\XML\XML;
 use WechatWorkServerBundle\Entity\ServerMessage;
+use WechatWorkServerBundle\Exception\InvalidXmlException;
 
 /**
  * @method ServerMessage|null find($id, $lockMode = null, $lockVersion = null)
@@ -24,7 +25,7 @@ class ServerMessageRepository extends ServiceEntityRepository
     {
         $arr = XML::parse($xml);
         if (empty($arr)) {
-            throw new \InvalidArgumentException('xml解析为空');
+            throw new InvalidXmlException('xml解析为空');
         }
 
         $message = ServerMessage::createFromArray($arr);

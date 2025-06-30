@@ -5,6 +5,7 @@ namespace WechatWorkServerBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\WechatWorkContracts\AgentInterface;
 use Tourze\WechatWorkContracts\CorpInterface;
 use WechatWorkServerBundle\Repository\ServerMessageRepository;
@@ -13,11 +14,7 @@ use WechatWorkServerBundle\Repository\ServerMessageRepository;
 #[ORM\Table(name: 'wechat_work_server_message', options: ['comment' => '服务端消息'])]
 class ServerMessage implements \Stringable
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
+    use SnowflakeKeyAware;
 
     #[ORM\Column(type: Types::STRING, length: 64, options: ['comment' => '企业微信CorpID'])]
     private ?string $toUserName = null;
@@ -78,11 +75,6 @@ class ServerMessage implements \Stringable
 
     #[ORM\Column(nullable: true, options: ['comment' => '响应数据'])]
     private ?array $response = null;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getToUserName(): ?string
     {
