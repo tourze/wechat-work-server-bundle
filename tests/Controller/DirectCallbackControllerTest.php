@@ -1,48 +1,144 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatWorkServerBundle\Tests\Controller;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Tourze\PHPUnitSymfonyWebTest\AbstractWebTestCase;
 use WechatWorkServerBundle\Controller\DirectCallbackController;
 
-class DirectCallbackControllerTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DirectCallbackController::class)]
+#[RunTestsInSeparateProcesses]
+final class DirectCallbackControllerTest extends AbstractWebTestCase
 {
-    private DirectCallbackController $controller;
-
-    public function test_controller_creation_success(): void
+    public function testDirectCallbackRouteExistsAndResponds(): void
     {
-        $this->assertInstanceOf(DirectCallbackController::class, $this->controller);
+        $client = self::createClientWithDatabase();
+
+        $client->request('POST', '/wechat/work/direct-server/test-corp-id', [], [], [], '<xml>test</xml>');
+
+        $response = $client->getResponse();
+        $this->assertTrue($response->isSuccessful(), 'Expected successful response but got: ' . $response->getStatusCode());
+        $this->assertSame('success', $response->getContent());
     }
 
-    public function test_controller_extends_abstract_controller(): void
+    public function testDirectCallbackWithGetRequest(): void
     {
-        $reflection = new \ReflectionClass($this->controller);
+        $client = self::createClientWithDatabase();
 
-        $this->assertTrue(
-            $reflection->isSubclassOf('Symfony\Bundle\FrameworkBundle\Controller\AbstractController')
-        );
+        $client->request('GET', '/wechat/work/direct-server/test-corp-id', [], [], [], '<xml>test</xml>');
+
+        $response = $client->getResponse();
+        $this->assertTrue($response->isSuccessful(), 'Expected successful response but got: ' . $response->getStatusCode());
+        $this->assertSame('success', $response->getContent());
     }
 
-    public function test_controller_has_invoke_method(): void
+    public function testDirectCallbackSanitizesCorpId(): void
     {
-        $reflection = new \ReflectionClass($this->controller);
+        $client = self::createClientWithDatabase();
 
-        $this->assertTrue($reflection->hasMethod('__invoke'));
+        $client->request('POST', '/wechat/work/direct-server/test..malicious..corp', [], [], [], '<xml>test</xml>');
 
-        $method = $reflection->getMethod('__invoke');
-        $this->assertTrue($method->isPublic());
+        $response = $client->getResponse();
+        $this->assertTrue($response->isSuccessful(), 'Expected successful response but got: ' . $response->getStatusCode());
     }
 
-    public function test_controller_namespace(): void
+    public function testDirectCallbackLogsRequest(): void
     {
-        $reflection = new \ReflectionClass($this->controller);
+        $client = self::createClientWithDatabase();
+        $kernel = $client->getKernel();
 
-        $this->assertEquals('WechatWorkServerBundle\Controller', $reflection->getNamespaceName());
-        $this->assertEquals('DirectCallbackController', $reflection->getShortName());
+        $corpId = 'test-corp-logs';
+        $testContent = '<xml><ToUserName>test</ToUserName></xml>';
+        $logFile = $kernel->getProjectDir() . "/wechat-work-{$corpId}.log";
+
+        if (file_exists($logFile)) {
+            unlink($logFile);
+        }
+
+        $client->request('POST', "/wechat/work/direct-server/{$corpId}", [], [], [], $testContent);
+
+        $this->assertFileExists($logFile);
+        $logContent = file_get_contents($logFile);
+        $this->assertIsString($logContent);
+        $this->assertStringContainsString($testContent, $logContent);
+
+        if (file_exists($logFile)) {
+            unlink($logFile);
+        }
     }
 
-    protected function setUp(): void
+    public function testDirectCallbackUnauthenticatedAccess(): void
     {
-        $this->controller = new DirectCallbackController();
+        $client = self::createClientWithDatabase();
+
+        $client->request('POST', '/wechat/work/direct-server/unauthenticated-corp', [], [], [], '<xml>test</xml>');
+
+        $response = $client->getResponse();
+        $this->assertTrue($response->isSuccessful(), 'Expected successful response but got: ' . $response->getStatusCode());
+    }
+
+    public function testDirectCallbackWithPutMethod(): void
+    {
+        $client = self::createClientWithDatabase();
+        $client->catchExceptions(false);
+
+        $this->expectException(MethodNotAllowedHttpException::class);
+        $client->request('PUT', '/wechat/work/direct-server/test-corp-id', [], [], [], '<xml>test</xml>');
+    }
+
+    public function testDirectCallbackWithDeleteMethod(): void
+    {
+        $client = self::createClientWithDatabase();
+        $client->catchExceptions(false);
+
+        $this->expectException(MethodNotAllowedHttpException::class);
+        $client->request('DELETE', '/wechat/work/direct-server/test-corp-id');
+    }
+
+    public function testDirectCallbackWithPatchMethod(): void
+    {
+        $client = self::createClientWithDatabase();
+        $client->catchExceptions(false);
+
+        $this->expectException(MethodNotAllowedHttpException::class);
+        $client->request('PATCH', '/wechat/work/direct-server/test-corp-id', [], [], [], '<xml>test</xml>');
+    }
+
+    public function testDirectCallbackWithHeadMethod(): void
+    {
+        $client = self::createClientWithDatabase();
+
+        $client->request('HEAD', '/wechat/work/direct-server/test-corp-id', [], [], [], '<xml>test</xml>');
+
+        // HEAD 方法在 Symfony 中会自动转换为 GET，所以应该返回成功
+        $response = $client->getResponse();
+        $this->assertTrue($response->isSuccessful(), 'Expected successful response but got: ' . $response->getStatusCode());
+    }
+
+    public function testDirectCallbackWithOptionsMethod(): void
+    {
+        $client = self::createClientWithDatabase();
+        $client->catchExceptions(false);
+
+        $this->expectException(MethodNotAllowedHttpException::class);
+        $client->request('OPTIONS', '/wechat/work/direct-server/test-corp-id');
+    }
+
+    #[DataProvider('provideNotAllowedMethods')]
+    public function testMethodNotAllowed(string $method): void
+    {
+        $client = self::createClientWithDatabase();
+        $client->catchExceptions(false);
+
+        $this->expectException(MethodNotAllowedHttpException::class);
+        $client->request($method, '/wechat/work/direct-server/test-corp-id');
     }
 }

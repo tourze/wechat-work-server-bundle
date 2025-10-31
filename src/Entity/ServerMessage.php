@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatWorkServerBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\WechatWorkContracts\AgentInterface;
 use Tourze\WechatWorkContracts\CorpInterface;
@@ -12,67 +14,96 @@ use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
 #[ORM\Entity(repositoryClass: ServerMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_server_message', options: ['comment' => '服务端消息'])]
-class ServerMessage implements \Stringable
+final class ServerMessage implements \Stringable
 {
     use SnowflakeKeyAware;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     #[ORM\Column(type: Types::STRING, length: 64, options: ['comment' => '企业微信CorpID'])]
     private ?string $toUserName = null;
 
+    #[Assert\Length(max: 128)]
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '成员UserID'])]
     private ?string $fromUserName = null;
 
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => '消息创建时间戳'])]
     private ?int $createTime = null;
 
+    /**
+     * @var array<string, mixed>
+     */
+    #[Assert\Type(type: 'array')]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => 'Encrypt参数解密后的内容'])]
     private array $decryptData = [];
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[Assert\Type(type: 'array')]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '原始数据'])]
     private ?array $rawData = null;
 
+    #[Assert\Length(max: 50)]
     #[ORM\Column(length: 50, nullable: true, options: ['comment' => '消息类型'])]
     private ?string $msgType = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '事件类型'])]
     private ?string $event = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '变更类型'])]
     private ?string $changeType = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '群聊ID'])]
     private ?string $chatId = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '外部联系人ID'])]
     private ?string $externalUserId = null;
 
+    #[Assert\Type(type: 'integer')]
     #[ORM\Column(nullable: true, options: ['comment' => '入群场景'])]
     private ?int $joinScene = null;
 
+    #[Assert\Type(type: 'integer')]
     #[ORM\Column(nullable: true, options: ['comment' => '成员变更数量'])]
     private ?int $memChangeCnt = null;
 
+    #[Assert\Type(type: 'integer')]
     #[ORM\Column(nullable: true, options: ['comment' => '退群场景'])]
     private ?int $quitScene = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '自定义状态'])]
     private ?string $state = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '更新详情'])]
     private ?string $updateDetail = null;
 
+    #[Assert\Length(max: 120)]
     #[ORM\Column(length: 120, nullable: true, options: ['comment' => '用户ID'])]
     private ?string $userId = null;
 
+    #[Assert\Length(max: 140)]
     #[ORM\Column(length: 140, nullable: true, options: ['comment' => '欢迎语code'])]
     private ?string $welcomeCode = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: CorpInterface::class)]
+    #[ORM\JoinColumn(name: 'corp_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?CorpInterface $corp = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: AgentInterface::class)]
+    #[ORM\JoinColumn(name: 'agent_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?AgentInterface $agent = null;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[Assert\Type(type: 'array')]
     #[ORM\Column(nullable: true, options: ['comment' => '响应数据'])]
     private ?array $response = null;
 
@@ -81,11 +112,9 @@ class ServerMessage implements \Stringable
         return $this->toUserName;
     }
 
-    public function setToUserName(string $toUserName): self
+    public function setToUserName(string $toUserName): void
     {
         $this->toUserName = $toUserName;
-
-        return $this;
     }
 
     public function getCreateTime(): ?int
@@ -93,23 +122,25 @@ class ServerMessage implements \Stringable
         return $this->createTime;
     }
 
-    public function setCreateTime(int $createTime): self
+    public function setCreateTime(int $createTime): void
     {
         $this->createTime = $createTime;
-
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRawData(): ?array
     {
         return $this->rawData;
     }
 
-    public function setRawData(?array $rawData): self
+    /**
+     * @param array<string, mixed>|null $rawData
+     */
+    public function setRawData(?array $rawData): void
     {
         $this->rawData = $rawData;
-
-        return $this;
     }
 
     public function getFromUserName(): ?string
@@ -117,23 +148,25 @@ class ServerMessage implements \Stringable
         return $this->fromUserName;
     }
 
-    public function setFromUserName(?string $fromUserName): self
+    public function setFromUserName(?string $fromUserName): void
     {
         $this->fromUserName = $fromUserName;
-
-        return $this;
     }
 
-    public function getDecryptData(): ?array
+    /**
+     * @return array<string, mixed>
+     */
+    public function getDecryptData(): array
     {
         return $this->decryptData;
     }
 
-    public function setDecryptData(?array $decryptData): self
+    /**
+     * @param array<string, mixed>|null $decryptData
+     */
+    public function setDecryptData(?array $decryptData): void
     {
-        $this->decryptData = $decryptData;
-
-        return $this;
+        $this->decryptData = $decryptData ?? [];
     }
 
     public function getMsgType(): ?string
@@ -141,11 +174,9 @@ class ServerMessage implements \Stringable
         return $this->msgType;
     }
 
-    public function setMsgType(?string $msgType): self
+    public function setMsgType(?string $msgType): void
     {
         $this->msgType = $msgType;
-
-        return $this;
     }
 
     public function getEvent(): ?string
@@ -153,11 +184,9 @@ class ServerMessage implements \Stringable
         return $this->event;
     }
 
-    public function setEvent(?string $event): self
+    public function setEvent(?string $event): void
     {
         $this->event = $event;
-
-        return $this;
     }
 
     public function getChangeType(): ?string
@@ -165,11 +194,9 @@ class ServerMessage implements \Stringable
         return $this->changeType;
     }
 
-    public function setChangeType(?string $changeType): self
+    public function setChangeType(?string $changeType): void
     {
         $this->changeType = $changeType;
-
-        return $this;
     }
 
     public function getChatId(): ?string
@@ -177,11 +204,9 @@ class ServerMessage implements \Stringable
         return $this->chatId;
     }
 
-    public function setChatId(?string $chatId): self
+    public function setChatId(?string $chatId): void
     {
         $this->chatId = $chatId;
-
-        return $this;
     }
 
     public function getExternalUserId(): ?string
@@ -189,11 +214,9 @@ class ServerMessage implements \Stringable
         return $this->externalUserId;
     }
 
-    public function setExternalUserId(?string $externalUserId): self
+    public function setExternalUserId(?string $externalUserId): void
     {
         $this->externalUserId = $externalUserId;
-
-        return $this;
     }
 
     public function getJoinScene(): ?int
@@ -201,11 +224,9 @@ class ServerMessage implements \Stringable
         return $this->joinScene;
     }
 
-    public function setJoinScene(?int $joinScene): self
+    public function setJoinScene(?int $joinScene): void
     {
         $this->joinScene = $joinScene;
-
-        return $this;
     }
 
     public function getMemChangeCnt(): ?int
@@ -213,11 +234,9 @@ class ServerMessage implements \Stringable
         return $this->memChangeCnt;
     }
 
-    public function setMemChangeCnt(?int $memChangeCnt): self
+    public function setMemChangeCnt(?int $memChangeCnt): void
     {
         $this->memChangeCnt = $memChangeCnt;
-
-        return $this;
     }
 
     public function getQuitScene(): ?int
@@ -225,11 +244,9 @@ class ServerMessage implements \Stringable
         return $this->quitScene;
     }
 
-    public function setQuitScene(?int $quitScene): self
+    public function setQuitScene(?int $quitScene): void
     {
         $this->quitScene = $quitScene;
-
-        return $this;
     }
 
     public function getState(): ?string
@@ -237,11 +254,9 @@ class ServerMessage implements \Stringable
         return $this->state;
     }
 
-    public function setState(?string $state): self
+    public function setState(?string $state): void
     {
         $this->state = $state;
-
-        return $this;
     }
 
     public function getUpdateDetail(): ?string
@@ -249,11 +264,9 @@ class ServerMessage implements \Stringable
         return $this->updateDetail;
     }
 
-    public function setUpdateDetail(?string $updateDetail): self
+    public function setUpdateDetail(?string $updateDetail): void
     {
         $this->updateDetail = $updateDetail;
-
-        return $this;
     }
 
     public function getUserId(): ?string
@@ -261,11 +274,9 @@ class ServerMessage implements \Stringable
         return $this->userId;
     }
 
-    public function setUserId(?string $userId): self
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
-
-        return $this;
     }
 
     public function getWelcomeCode(): ?string
@@ -273,11 +284,9 @@ class ServerMessage implements \Stringable
         return $this->welcomeCode;
     }
 
-    public function setWelcomeCode(?string $welcomeCode): self
+    public function setWelcomeCode(?string $welcomeCode): void
     {
         $this->welcomeCode = $welcomeCode;
-
-        return $this;
     }
 
     public function getCorp(): ?CorpInterface
@@ -285,11 +294,9 @@ class ServerMessage implements \Stringable
         return $this->corp;
     }
 
-    public function setCorp(?CorpInterface $corp): static
+    public function setCorp(?CorpInterface $corp): void
     {
         $this->corp = $corp;
-
-        return $this;
     }
 
     public function getAgent(): ?AgentInterface
@@ -297,76 +304,146 @@ class ServerMessage implements \Stringable
         return $this->agent;
     }
 
-    public function setAgent(?AgentInterface $agent): static
+    public function setAgent(?AgentInterface $agent): void
     {
         $this->agent = $agent;
-
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getResponse(): ?array
     {
         return $this->response;
     }
 
-    public function setResponse(?array $response): static
+    /**
+     * @param array<string, mixed>|null $response
+     */
+    public function setResponse(?array $response): void
     {
         $this->response = $response;
-
-        return $this;
     }
 
+    /**
+     * @param array<string, mixed> $arr
+     */
     public static function createFromArray(array $arr): static
     {
-        $message = new static();
+        $message = self::createNewInstance();
         $message->setRawData($arr);
-        if (isset($arr['CreateTime'])) {
-            $message->setCreateTime($arr['CreateTime']);
-        }
-        if (isset($arr['ToUserName'])) {
-            $message->setToUserName($arr['ToUserName']);
-        }
-        if (isset($arr['FromUserName'])) {
-            $message->setFromUserName($arr['FromUserName']);
-        }
-        if (isset($arr['MsgType'])) {
-            $message->setMsgType($arr['MsgType']);
-        }
-        if (isset($arr['Event'])) {
-            $message->setEvent($arr['Event']);
-        }
-        if (isset($arr['ChangeType'])) {
-            $message->setChangeType($arr['ChangeType']);
-        }
-        if (isset($arr['UserID'])) {
-            $message->setUserId($arr['UserID']);
-        }
-        if (isset($arr['ExternalUserID'])) {
-            $message->setExternalUserId($arr['ExternalUserID']);
-        }
-        if (isset($arr['WelcomeCode'])) {
-            $message->setWelcomeCode($arr['WelcomeCode']);
-        }
-        if (isset($arr['ChatId'])) {
-            $message->setChatId($arr['ChatId']);
-        }
-        if (isset($arr['UpdateDetail'])) {
-            $message->setUpdateDetail($arr['UpdateDetail']);
-        }
-        if (isset($arr['JoinScene'])) {
-            $message->setJoinScene($arr['JoinScene']);
-        }
-        if (isset($arr['MemChangeCnt'])) {
-            $message->setMemChangeCnt($arr['MemChangeCnt']);
-        }
-        if (isset($arr['QuitScene'])) {
-            $message->setQuitScene($arr['QuitScene']);
-        }
-        if (isset($arr['State'])) {
-            $message->setState($arr['State']);
-        }
+        $message->mapArrayToProperties($arr);
 
         return $message;
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapArrayToProperties(array $arr): void
+    {
+        $this->mapRequiredFields($arr);
+        $this->mapOptionalStringFields($arr);
+        $this->mapOptionalIntegerFields($arr);
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapRequiredFields(array $arr): void
+    {
+        if (isset($arr['CreateTime'])) {
+            if (is_int($arr['CreateTime'])) {
+                $this->setCreateTime($arr['CreateTime']);
+            } elseif (is_string($arr['CreateTime']) && is_numeric($arr['CreateTime'])) {
+                $this->setCreateTime((int) $arr['CreateTime']);
+            }
+        }
+        if (isset($arr['ToUserName']) && is_string($arr['ToUserName'])) {
+            $this->setToUserName($arr['ToUserName']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapOptionalStringFields(array $arr): void
+    {
+        $this->mapBasicStringFields($arr);
+        $this->mapEventStringFields($arr);
+        $this->mapIdentifierStringFields($arr);
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapBasicStringFields(array $arr): void
+    {
+        if (isset($arr['FromUserName']) && is_string($arr['FromUserName'])) {
+            $this->setFromUserName($arr['FromUserName']);
+        }
+        if (isset($arr['MsgType']) && is_string($arr['MsgType'])) {
+            $this->setMsgType($arr['MsgType']);
+        }
+        if (isset($arr['State']) && is_string($arr['State'])) {
+            $this->setState($arr['State']);
+        }
+        if (isset($arr['UpdateDetail']) && is_string($arr['UpdateDetail'])) {
+            $this->setUpdateDetail($arr['UpdateDetail']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapEventStringFields(array $arr): void
+    {
+        if (isset($arr['Event']) && is_string($arr['Event'])) {
+            $this->setEvent($arr['Event']);
+        }
+        if (isset($arr['ChangeType']) && is_string($arr['ChangeType'])) {
+            $this->setChangeType($arr['ChangeType']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapIdentifierStringFields(array $arr): void
+    {
+        if (isset($arr['UserID']) && is_string($arr['UserID'])) {
+            $this->setUserId($arr['UserID']);
+        }
+        if (isset($arr['ExternalUserID']) && is_string($arr['ExternalUserID'])) {
+            $this->setExternalUserId($arr['ExternalUserID']);
+        }
+        if (isset($arr['WelcomeCode']) && is_string($arr['WelcomeCode'])) {
+            $this->setWelcomeCode($arr['WelcomeCode']);
+        }
+        if (isset($arr['ChatId']) && is_string($arr['ChatId'])) {
+            $this->setChatId($arr['ChatId']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    private function mapOptionalIntegerFields(array $arr): void
+    {
+        if (isset($arr['JoinScene']) && is_int($arr['JoinScene'])) {
+            $this->setJoinScene($arr['JoinScene']);
+        }
+        if (isset($arr['MemChangeCnt']) && is_int($arr['MemChangeCnt'])) {
+            $this->setMemChangeCnt($arr['MemChangeCnt']);
+        }
+        if (isset($arr['QuitScene']) && is_int($arr['QuitScene'])) {
+            $this->setQuitScene($arr['QuitScene']);
+        }
+    }
+
+    private static function createNewInstance(): static
+    {
+        return new static();
     }
 
     public function __toString(): string

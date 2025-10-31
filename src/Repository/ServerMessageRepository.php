@@ -1,19 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatWorkServerBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use Tourze\XML\XML;
 use WechatWorkServerBundle\Entity\ServerMessage;
 use WechatWorkServerBundle\Exception\InvalidXmlException;
 
 /**
+ * @extends ServiceEntityRepository<ServerMessage>
  * @method ServerMessage|null find($id, $lockMode = null, $lockVersion = null)
  * @method ServerMessage|null findOneBy(array $criteria, array $orderBy = null)
  * @method ServerMessage[]    findAll()
  * @method ServerMessage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @phpstan-ignore-next-line missingType.generics
  */
+#[AsRepository(entityClass: ServerMessage::class)]
+#[Autoconfigure(public: true)]
 class ServerMessageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,76 +30,87 @@ class ServerMessageRepository extends ServiceEntityRepository
         parent::__construct($registry, ServerMessage::class);
     }
 
-    public function saveXML(string $xml, bool $flush = false): ?ServerMessage
+    public function createFromXML(string $xml): ?ServerMessage
     {
-        $arr = XML::parse($xml);
-        if (empty($arr)) {
+        try {
+            $arr = XML::parse($xml);
+        } catch (\Throwable $e) {
+            throw new InvalidXmlException('xml解析为空', 0, $e);
+        }
+
+        if ([] === $arr) {
             throw new InvalidXmlException('xml解析为空');
         }
 
         $message = ServerMessage::createFromArray($arr);
 
-        if ($message->getCreateTime() === null) {
+        if (null === $message->getCreateTime()) {
             return null;
         }
-        if ($message->getToUserName() === null) {
+        if (null === $message->getToUserName()) {
             return null;
-        }
-
-        $this->getEntityManager()->persist($message);
-        if ($flush) {
-            $this->getEntityManager()->flush();
         }
 
         return $message;
     }
 
+    /**
+     * @param array<string, mixed> $arr
+     */
     public function assignMessage(ServerMessage $message, array $arr): void
     {
-        if (isset($arr['CreateTime'])) {
-            $message->setCreateTime($arr['CreateTime']);
+        // Delegate to the entity's own mapping method
+        $tempMessage = ServerMessage::createFromArray($arr);
+
+        // Copy mapped properties to the target message
+        $this->copyProperties($tempMessage, $message);
+    }
+
+    private function copyProperties(ServerMessage $source, ServerMessage $target): void
+    {
+        $propertyMappings = [
+            'getCreateTime' => 'setCreateTime',
+            'getToUserName' => 'setToUserName',
+            'getFromUserName' => 'setFromUserName',
+            'getMsgType' => 'setMsgType',
+            'getEvent' => 'setEvent',
+            'getChangeType' => 'setChangeType',
+            'getUserId' => 'setUserId',
+            'getExternalUserId' => 'setExternalUserId',
+            'getWelcomeCode' => 'setWelcomeCode',
+            'getChatId' => 'setChatId',
+            'getUpdateDetail' => 'setUpdateDetail',
+            'getJoinScene' => 'setJoinScene',
+            'getMemChangeCnt' => 'setMemChangeCnt',
+            'getQuitScene' => 'setQuitScene',
+            'getState' => 'setState',
+        ];
+
+        foreach ($propertyMappings as $getter => $setter) {
+            if (method_exists($source, $getter) && method_exists($target, $setter)) {
+                $value = call_user_func([$source, $getter]);
+                if (null !== $value) {
+                    call_user_func([$target, $setter], $value);
+                }
+            }
         }
-        if (isset($arr['ToUserName'])) {
-            $message->setToUserName($arr['ToUserName']);
+    }
+
+    public function save(ServerMessage $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
         }
-        if (isset($arr['FromUserName'])) {
-            $message->setFromUserName($arr['FromUserName']);
-        }
-        if (isset($arr['MsgType'])) {
-            $message->setMsgType($arr['MsgType']);
-        }
-        if (isset($arr['Event'])) {
-            $message->setEvent($arr['Event']);
-        }
-        if (isset($arr['ChangeType'])) {
-            $message->setChangeType($arr['ChangeType']);
-        }
-        if (isset($arr['UserID'])) {
-            $message->setUserId($arr['UserID']);
-        }
-        if (isset($arr['ExternalUserID'])) {
-            $message->setExternalUserId($arr['ExternalUserID']);
-        }
-        if (isset($arr['WelcomeCode'])) {
-            $message->setWelcomeCode($arr['WelcomeCode']);
-        }
-        if (isset($arr['ChatId'])) {
-            $message->setChatId($arr['ChatId']);
-        }
-        if (isset($arr['UpdateDetail'])) {
-            $message->setUpdateDetail($arr['UpdateDetail']);
-        }
-        if (isset($arr['JoinScene'])) {
-            $message->setJoinScene($arr['JoinScene']);
-        }
-        if (isset($arr['MemChangeCnt'])) {
-            $message->setMemChangeCnt($arr['MemChangeCnt']);
-        }
-        if (isset($arr['QuitScene'])) {
-            $message->setQuitScene($arr['QuitScene']);
-        }
-        if (isset($arr['State'])) {
-            $message->setState($arr['State']);
+    }
+
+    public function remove(ServerMessage $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
         }
     }
 }

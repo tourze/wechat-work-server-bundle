@@ -6,6 +6,9 @@ services:
 
   WechatWorkServerBundle\Command\:
     resource: '../../Command/'
+  WechatWorkServerBundle\Controller\:
+    resource: '../../Controller/'
+    tags: ['controller.service_arguments']
   WechatWorkServerBundle\Repository\:
     resource: '../../Repository/'
   WechatWorkServerBundle\Service\:

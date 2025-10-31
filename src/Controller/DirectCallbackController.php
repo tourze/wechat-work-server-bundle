@@ -2,6 +2,7 @@
 
 namespace WechatWorkServerBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use WechatWorkServerBundle\Repository\ServerMessageRepository;
 
-class DirectCallbackController extends AbstractController
+final class DirectCallbackController extends AbstractController
 {
     #[Route(path: '/wechat/work/direct-server/{corpId}', name: 'wechat_work_server_direct_callback', methods: ['GET', 'POST'])]
     public function __invoke(
@@ -18,6 +19,7 @@ class DirectCallbackController extends AbstractController
         Request $request,
         KernelInterface $kernel,
         ServerMessageRepository $messageRepository,
+        EntityManagerInterface $entityManager,
         LoggerInterface $logger,
     ): Response {
         $corpId = str_replace('..', '', $corpId);
@@ -25,7 +27,11 @@ class DirectCallbackController extends AbstractController
         file_put_contents($logFile, $request->getContent() . "\n", FILE_APPEND);
 
         try {
-            $messageRepository->saveXML($request->getContent());
+            $message = $messageRepository->createFromXML($request->getContent());
+            if (null !== $message) {
+                $entityManager->persist($message);
+                $entityManager->flush();
+            }
         } catch (\Throwable $exception) {
             $logger->error('保存到数据库时发生错误', [
                 'exception' => $exception,

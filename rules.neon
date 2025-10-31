@@ -1,0 +1,5 @@
+parameters:
+    ignoreErrors:
+        # 临时忽略 CognitiveComplexity 插件内部错误 - Issue #1100
+        -
+            message: '#Internal error: TomasVotruba\\CognitiveComplexity\\NodeVisitor\\ComplexityNodeVisitor::enterNode.*#'

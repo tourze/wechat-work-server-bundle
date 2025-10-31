@@ -1,87 +1,109 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatWorkServerBundle\Tests\DependencyInjection;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Tourze\PHPUnitSymfonyUnitTest\AbstractDependencyInjectionExtensionTestCase;
 use WechatWorkServerBundle\DependencyInjection\WechatWorkServerExtension;
 
-class WechatWorkServerExtensionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(WechatWorkServerExtension::class)]
+final class WechatWorkServerExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
-    private WechatWorkServerExtension $extension;
-    private ContainerBuilder $container;
-
-    protected function setUp(): void
+    protected function getExtensionClass(): string
     {
-        $this->extension = new WechatWorkServerExtension();
-        $this->container = new ContainerBuilder();
+        return WechatWorkServerExtension::class;
     }
 
-    public function test_extension_creation_success(): void
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getMinimalConfiguration(): array
     {
-        $this->assertInstanceOf(Extension::class, $this->extension);
-        $this->assertInstanceOf(WechatWorkServerExtension::class, $this->extension);
+        return [];
     }
 
-    public function test_extension_extends_symfony_extension(): void
+    public function testExtensionCreationSuccess(): void
     {
-        $reflection = new \ReflectionClass($this->extension);
-        
+        $extension = new WechatWorkServerExtension();
+        $this->assertInstanceOf(Extension::class, $extension);
+        $this->assertInstanceOf(WechatWorkServerExtension::class, $extension);
+    }
+
+    public function testExtensionExtendsSymfonyExtension(): void
+    {
+        $extension = new WechatWorkServerExtension();
+        $reflection = new \ReflectionClass($extension);
+
         $this->assertTrue($reflection->isSubclassOf(Extension::class));
     }
 
-    public function test_load_method_exists(): void
+    public function testLoadMethodExists(): void
     {
-        $reflection = new \ReflectionClass($this->extension);
-        
+        $extension = new WechatWorkServerExtension();
+        $reflection = new \ReflectionClass($extension);
+
         $this->assertTrue($reflection->hasMethod('load'));
-        
+
         $method = $reflection->getMethod('load');
         $this->assertTrue($method->isPublic());
     }
 
-    public function test_load_with_empty_configs(): void
+    public function testLoadWithEmptyConfigs(): void
     {
         $configs = [];
-        
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
+        $extension = new WechatWorkServerExtension();
+
         // 这个测试主要验证不会抛出异常
-        $this->extension->load($configs, $this->container);
-        
+        $extension->load($configs, $container);
+
         // 验证容器仍然是有效的
-        $this->assertInstanceOf(ContainerBuilder::class, $this->container);
+        $this->assertInstanceOf(ContainerBuilder::class, $container);
     }
 
-    public function test_load_with_multiple_configs(): void
+    public function testLoadWithMultipleConfigs(): void
     {
         $configs = [
             ['config1' => 'value1'],
             ['config2' => 'value2'],
         ];
-        
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
+        $extension = new WechatWorkServerExtension();
+
         // 这个测试主要验证不会抛出异常
-        $this->extension->load($configs, $this->container);
-        
+        $extension->load($configs, $container);
+
         // 验证容器仍然是有效的
-        $this->assertInstanceOf(ContainerBuilder::class, $this->container);
+        $this->assertInstanceOf(ContainerBuilder::class, $container);
     }
 
-    public function test_load_method_parameters(): void
+    public function testLoadMethodParameters(): void
     {
-        $reflection = new \ReflectionClass($this->extension);
+        $extension = new WechatWorkServerExtension();
+        $reflection = new \ReflectionClass($extension);
         $method = $reflection->getMethod('load');
         $parameters = $method->getParameters();
-        
+
         $this->assertCount(2, $parameters);
         $this->assertEquals('configs', $parameters[0]->getName());
         $this->assertEquals('container', $parameters[1]->getName());
     }
 
-    public function test_extension_namespace(): void
+    public function testExtensionNamespace(): void
     {
-        $reflection = new \ReflectionClass($this->extension);
-        
+        $extension = new WechatWorkServerExtension();
+        $reflection = new \ReflectionClass($extension);
+
         $this->assertEquals('WechatWorkServerBundle\DependencyInjection', $reflection->getNamespaceName());
         $this->assertEquals('WechatWorkServerExtension', $reflection->getShortName());
     }
-} 
+}

@@ -7,8 +7,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[AsCommand(name: self::NAME, description: '导入本地文件')]
+#[Autoconfigure(public: true)]
 class ImportServerMessageCommand extends Command
 {
     public const NAME = 'wechat-work:import-server-message';
