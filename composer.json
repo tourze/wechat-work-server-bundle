@@ -42,7 +42,7 @@
     "phpunit/phpunit": "^11.5",
     "symfony/security-bundle": "^7.3",
     "symfony/twig-bundle": "^7.3",
-    "tourze/doctrine-resolve-target-entity-bundle": "0.0.*",
+    "tourze/doctrine-resolve-target-entity-bundle": "1.*",
     "tourze/easy-admin-menu-bundle": "0.1.*",
     "tourze/phpunit-base": "1.*",
     "tourze/phpunit-doctrine-entity": "1.*",
