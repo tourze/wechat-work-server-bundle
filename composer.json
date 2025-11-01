@@ -29,7 +29,7 @@
     "symfony/yaml": "^7.3",
     "tourze/bundle-dependency": "1.*",
     "tourze/doctrine-snowflake-bundle": "1.0.*",
-    "tourze/symfony-dependency-service-loader": "1.*",
+    "tourze/symfony-dependency-service-loader": "1.0.*",
     "tourze/symfony-routing-auto-loader-bundle": "1.0.*",
     "tourze/wechat-helper": "0.0.*",
     "tourze/wechat-work-bundle": "0.1.*",
