@@ -18,8 +18,6 @@ use WechatWorkBundle\Entity\Agent;
  * @method Agent|null findOneBy(array $criteria, array $orderBy = null)
  * @method Agent[]    findAll()
  * @method Agent[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- *
- * @phpstan-ignore-next-line missingType.generics
  */
 #[AsRepository(entityClass: Agent::class)]
 #[Autoconfigure(public: true)]

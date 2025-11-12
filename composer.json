@@ -38,6 +38,7 @@
   },
   "require-dev": {
     "easycorp/easyadmin-bundle": "^4",
+    "fakerphp/faker": "^1.23",
     "knplabs/knp-menu": "^3.7",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^11.5",

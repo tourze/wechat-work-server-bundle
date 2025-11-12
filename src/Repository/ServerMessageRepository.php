@@ -18,8 +18,6 @@ use WechatWorkServerBundle\Exception\InvalidXmlException;
  * @method ServerMessage|null findOneBy(array $criteria, array $orderBy = null)
  * @method ServerMessage[]    findAll()
  * @method ServerMessage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- *
- * @phpstan-ignore-next-line missingType.generics
  */
 #[AsRepository(entityClass: ServerMessage::class)]
 #[Autoconfigure(public: true)]

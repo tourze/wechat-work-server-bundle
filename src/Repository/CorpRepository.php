@@ -17,8 +17,6 @@ use WechatWorkBundle\Entity\Corp;
  * @method Corp|null findOneBy(array $criteria, array $orderBy = null)
  * @method Corp[]    findAll()
  * @method Corp[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- *
- * @phpstan-ignore-next-line missingType.generics
  */
 #[AsRepository(entityClass: Corp::class)]
 #[Autoconfigure(public: true)]
