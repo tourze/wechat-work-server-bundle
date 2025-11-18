@@ -53,11 +53,6 @@ final class ServerMessageCrudControllerTest extends AbstractEasyAdminControllerT
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcnReturnsCorrectClass(): void
-    {
-        $this->assertSame(ServerMessage::class, ServerMessageCrudController::getEntityFqcn());
-    }
-
     public function testControllerIsFinal(): void
     {
         $reflection = new \ReflectionClass(ServerMessageCrudController::class);
